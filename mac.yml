@@ -1,0 +1,16 @@
+---
+- name: ========= To Set OSX Environment =========
+  hosts: testmac
+  gather_facts: false
+  vars:
+    uname: jenkins
+    pub_key: ~/.ssh/id_rsa.pub
+  remote_user: "{{uname}}"
+  tasks:
+    - name: check sshkey
+      script: sh_mac.sh sshkey
+    - name: add authorized_keys
+      authorized_key: key="{{ lookup('file', pub_key) }}" user={{uname}} state=present
+    - name: check all
+      script: sh_mac.sh all
+    

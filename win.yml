@@ -1,0 +1,41 @@
+---
+- name: Test For Windows
+  hosts: testwin
+  gather_facts: false
+  vars:
+    uname: testbed
+  remote_user: "{{uname}}"
+  tasks:
+    - name: ping win
+      win_ping:
+    # install base tools
+    - name: install sysinternals
+      win_chocolatey: name="sysinternals -y"
+    - name: install 7zip
+      win_chocolatey: name="7zip -y"
+    - name: install git
+      win_chocolatey: name="git --params=\"/GitAndUnixToolsOnPath /NoAutoCrlf\" -y"
+    # install python
+    - name: install python2
+      win_chocolatey: name="python2 -y"
+    - name: install pip
+      win_chocolatey: name="pip -y"
+    # install cygwin
+    - name: install cygwin
+      win_chocolatey: name="cygwin -y"
+    # install nasm
+    - name: install nasm
+      win_chocolatey: name="nasm -y" version=2.10.06
+    # install ruby/rvm/gem/node
+    - name: install ruby
+      win_chocolatey: name="ruby -y"
+    - name: install rubygems
+      win_chocolatey: name="rubygems -y"
+    - name: install node
+      win_chocolatey: name="nodejs.install -y"
+    # install android
+    - name: install android-sdk
+      win_chocolatey: name="android-sdk -y"
+    - name: install android-ndk
+      win_chocolatey: name="android-ndk -y --source=http://dl.google.com/android/ndk/android-ndk-r10d-windows-x86_64.exe"
+
