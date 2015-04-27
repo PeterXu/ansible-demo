@@ -3,6 +3,7 @@
 set +x
 set +e
 
+sleep 5
 touch $HOME/.bash_profile
 source $HOME/.bash_profile
 

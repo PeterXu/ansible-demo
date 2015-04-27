@@ -75,7 +75,7 @@ function check_base {
     check_install -bin whois -pkg sysinternals -path "C:\Tools\sysinternals"
     check_install -bin 7z -pkg 7zip -opt "-f" -path "C:\Program Files\7-Zip"
     check_install -bin cmake -pkg cmake
-    check_install -pkg "freeSSHD"
+    check_install -pkg freeSSHD
 }
 
 function check_dev {
@@ -97,7 +97,7 @@ function check_dev {
 
 function check_python
 {
-    cinst python2 -y
+    check_install -bin python -pkg python2 -opt "-f"
     pip install python-dateutil
     pip install numpy
     pip install matplotlib docutils sphinx treelib
@@ -106,15 +106,15 @@ function check_python
 
 function check_ruby
 {
-    cinst ruby -y
-    cinst rubygems -y
-    cinst ruby2.devkit -y
-    cinst nodejs.install -y
+    check_install -bin ruby -pkg ruby -opt "-f"
+    check_install -pkg rubygems
+    check_install -bin -pkg ruby2.devkit -opt "-f"
+    check_install -bin node -pkg nodejs.install -opt "-f"
 }
 
 function check_android
 {
-    cinst android-sdk -y
+    check_install -bin android -pkg android-sdk
     #cinst android-ndk -y --source=http://dl.google.com/android/ndk/android-ndk-r10d-windows-x86_64.exe
 }
 
@@ -145,3 +145,5 @@ function check_calabash
 check_env
 check_base
 check_dev
+#check_python
+#check_ruby

@@ -8,6 +8,8 @@
   tasks:
     - name: ping win
       win_ping:
+    - name: prepare chocolatey
+      win_chocolatey: name="chocolatey -y"
     - name: install win tools
       script: ps_win.ps1
 
