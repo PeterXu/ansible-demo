@@ -110,7 +110,9 @@ function check_dev
         set_path "C:\Program Files (x86)\Git\bin"
     }
 
-    check_install -bin cygwin -pkg cygwin -opt "-f" -path "C:\Tools\cygwin\bin"
+    check_install -bin cygwin -pkg cygwin -opt "-f" -path "C:\Tools\cygwin"
+    set_path "C:\Tools\cygwin\bin"
+
     check_install -bin nasm -pkg nasm -opt "-f" -path "C:\Users\testbed\AppData\Local\nasm" 
 }
 
