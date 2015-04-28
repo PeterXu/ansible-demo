@@ -5,7 +5,7 @@ wme-jenkins.cisco.com
 [IMAC-SJC]
 10.35.132.66
 [MANMINI-SJC-40]
-171.68.18.94
+10.35.132.40
 [MANMINI-SJC-713]
 10.35.132.52
 
@@ -98,6 +98,7 @@ HF-WIN
 ## For test
 [testmac]
 10.140.198.44
+
 
 [testwin]
 10.224.255.228 
