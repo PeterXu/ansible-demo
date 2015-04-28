@@ -162,8 +162,20 @@ function check_calabash
 {
     #gem sources -r https://rubygems.org/
     #gem sources -a http://rubygems.org/
-    echo "=> $root\update\.gemrc, $env:HOME\.gemrc"
-    Copy-Item $root\update\.gemrc $env:HOME\.gemrc -Force
+
+    $fprc="$env:HOME\.gemrc"
+    echo "=> generating $fprc"
+    #Copy-Item $root\update\.gemrc $env:HOME\.gemrc -Force
+    
+    echo "---"                      | out-file -filePath $fprc -encoding ASCII
+    echo ":backtrace: false"        | out-file -filePath $fprc -encoding ASCII -Append
+    echo ":bulk_threshold: 1000"    | out-file -filePath $fprc -encoding ASCII -Append
+    echo ":sources:"                | out-file -filePath $fprc -encoding ASCII -Append
+    echo "- http://rubygems.org"    | out-file -filePath $fprc -encoding ASCII -Append
+    echo ":update_sources: true"    | out-file -filePath $fprc -encoding ASCII -Append
+    echo ":verbose: true"           | out-file -filePath $fprc -encoding ASCII -Append
+    #return
+
 
     gem update --system 2.3.0
 
@@ -179,23 +191,6 @@ function check_calabash
         gem uninstall cucumber --force
         gem install cucumber -v 1.3.18
     }
-
-
-    cmd /C where rvm
-    $ret = $?
-    if (!$ret) {
-        Push-Location
-        cd $root\update
-        #curl -sSL https://get.rvm.io > rvm.sh 
-        #C:\Tools\cygwin\bin\bash rvm.sh -s stable --ruby
-        Pop-Location
-
-        #rvm use default
-        #rvm gemset create calabash
-        #rvm gemset use calabash
-    }
-
-
 
     gem list -l | grep "^calabash " 
     $ret = $?
@@ -224,11 +219,11 @@ function check_calabash
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-#check_env
-#check_base
-#check_dev
-#check_python
+check_env
+check_base
+check_dev
+check_python
 check_ruby
 check_calabash
 
-
+exit 0
