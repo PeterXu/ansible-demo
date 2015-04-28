@@ -15,7 +15,7 @@ which brew 2>/dev/null || exit 1
 # For python 2.7
 brew install python
 py=$(which python 2>/dev/null)
-if [ "$py" -ne "/usr/local/bin/python" ]; then
+if [ "$py" != "/usr/local/bin/python" ]; then
     echo "export PATH=/usr/local/bin:\$PATH" >> $profile
     export PATH=/usr/local/bin:$PATH
 fi
