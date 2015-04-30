@@ -59,8 +59,9 @@ function check_install([string]$bin, $pkg, $opt, [string]$ver, $path)
         cmd /C where $bin
         $ret = $?
     }
+
     if (!$ret) {
-        echo "[WARN] To install $pkg ..."
+        echo "[WARN] To install $pkg by choco ..."
         if ($ver.Length -ne 0) {
             cinst $pkg -y $opt -version="$ver"
         }else {
@@ -70,12 +71,33 @@ function check_install([string]$bin, $pkg, $opt, [string]$ver, $path)
     }
 }
 
+function cyg_install([string]$bin, $pkg)
+{
+    $ret = False
+    if ($bin.Length -ne 0) {
+        cmd /C where $bin
+        $ret = $?
+    }
+
+    if (!$ret) {
+        echo "[WARN] To install $pkg by cyg-get ..."
+        cyg-get $pkg
+    }
+}
+
 function pip_install($pkg)
 {
     pip list $pkg | grep "^$pkg "
-    pip install $pkg
+    $ret = $?
+    if (!$ret) {
+        pip install $pkg
+    }
 }
 
+function check_pkg($pkg)
+{
+    return False
+}
 
 
 ##======================================
@@ -87,39 +109,33 @@ function check_env
     }
 }
 
-function check_base 
-{
-    #check_install -bin whois -pkg sysinternals -path "C:\Tools\sysinternals"
-    check_install -bin 7z -pkg 7zip -opt "-f" -path "C:\Program Files\7-Zip"
-    check_install -bin cmake -pkg cmake
-    check_install -pkg freeSSHD
-}
-
-function check_dev 
+function check_ant 
 {
     $ant_home = "C:\Tools\apache-ant-1.9.4"
     check_install -bin ant -pkg ant -opt "-f" -ver "1.9.4" -path "$ant_home\bin"
     if ($env:ANT_HOME -ne $ant_home) {
         set_env "ANT_HOME" "$ant_home"
     }
-    
-    cmd /C where git
-    $ret = $?
-    if (!$ret) {
-        cinst git.install --params="/GitAndUnixToolsOnPath /NoAutoCrlf" -y
-        set_path "C:\Program Files (x86)\Git\bin"
-    }
 
-    check_install -bin cygwin -pkg cygwin -opt "-f" -path "C:\Tools\cygwin"
-    set_path "C:\Tools\cygwin\bin"
-
-    check_install -bin nasm -pkg nasm -opt "-f" -path "C:\Users\testbed\AppData\Local\nasm" 
 }
 
+function check_cygwin
+{
+    check_install -bin cygwin -pkg cygwin -path  "C:\Tools\cygwin"
+    set_path "C:\Tools\cygwin\bin"
+
+    check_install -bin cyg-get -pkg cyg-get
+    sed -i "s#ftp://mirrors.kernel.org/sourceware/cygwin/#http://mirrors.kernel.org/sourceware/cygwin#" C:\ProgramData\chocolatey\lib\cyg-get\tools\cyg-get.ps1
+    
+    cyg_install -bin ssh -pkg openssh
+    cyg_install -bin cmake -pkg cmake
+    cyg_install -bin python -pkg python
+    cyg_install -bin 7z -pkg p7zip
+    cyg_install -bin ruby -pkg ruby
+}
 
 function check_python
 {
-    check_install -bin python -pkg python2 -opt "-f"
     cmd /C where pip
     $ret = $?
     if (!$ret) {
@@ -140,7 +156,12 @@ function check_python
 function check_android
 {
     check_install -bin android -pkg android-sdk
-    #cinst android-ndk -y --source=http://dl.google.com/android/ndk/android-ndk-r10d-windows-x86_64.exe
+}
+
+
+function check_nodejs
+{
+    check_install -bin node -pkg nodejs.install -opt "-f"
 }
 
 function check_ruby
@@ -157,7 +178,7 @@ function check_ruby
     ruby dk.rb install
     Pop-Location
 
-    check_install -bin node -pkg nodejs.install -opt "-f"
+   
 }
 
 function check_calabash
@@ -167,8 +188,6 @@ function check_calabash
 
     $fprc="$env:HOME\.gemrc"
     echo "=> generating $fprc"
-    #Copy-Item $root\update\.gemrc $env:HOME\.gemrc -Force
-    
     echo "---"                      | out-file -filePath $fprc -encoding ASCII
     echo ":backtrace: false"        | out-file -filePath $fprc -encoding ASCII -Append
     echo ":bulk_threshold: 1000"    | out-file -filePath $fprc -encoding ASCII -Append
@@ -222,10 +241,11 @@ function check_calabash
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 check_env
-check_base
-check_dev
-check_python
-check_ruby
-check_calabash
+check_ant
+check_cygwin
+
+#check_python
+#check_ruby
+#check_calabash
 
 exit 0
