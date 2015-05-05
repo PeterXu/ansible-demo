@@ -54,7 +54,6 @@ function send_msg
 
 function check_install([string]$bin, $pkg, $opt, [string]$ver, $path) 
 {
-    $ret = False
     if ($bin.Length -ne 0) {
         cmd /C where $bin
         $ret = $?
@@ -73,7 +72,6 @@ function check_install([string]$bin, $pkg, $opt, [string]$ver, $path)
 
 function cyg_install([string]$bin, $pkg)
 {
-    $ret = False
     if ($bin.Length -ne 0) {
         cmd /C where $bin
         $ret = $?
@@ -242,7 +240,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 check_env
 check_ant
-check_cygwin
+#check_cygwin
 
 #check_python
 #check_ruby
