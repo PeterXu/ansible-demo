@@ -8,8 +8,14 @@
   tasks:
     - name: ping win
       win_ping:
-    - name: prepare chocolatey
-      win_chocolatey: name="winscp -y"
-    - name: install win tools
+    - name: prepare ant
+      win_chocolatey: name="ant -y"
+    - name: prepare cygwin
+      win_chocolatey: name="cygwin -y"
+    - name: prepare cyg-get
+      win_chocolatey: name="cyg-get -y"
+    - name: prepare tools by cyg-get
       script: ps_win.ps1
+        
+        
 

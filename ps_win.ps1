@@ -66,6 +66,7 @@ function check_install([string]$bin, $pkg, $opt, [string]$ver, $path)
         }else {
             cinst $pkg -y $opt
         }
+        Start-Sleep -s 30
         set_path "$path"
     }
 }
@@ -80,6 +81,7 @@ function cyg_install([string]$bin, $pkg)
     if (!$ret) {
         echo "[WARN] To install $pkg by cyg-get ..."
         cyg-get $pkg
+        Start-Sleep -s 30
     }
 }
 
@@ -110,26 +112,25 @@ function check_env
 function check_ant 
 {
     $ant_home = "C:\Tools\apache-ant-1.9.4"
-    check_install -bin ant -pkg ant -opt "-f" -ver "1.9.4" -path "$ant_home\bin"
+
+    set_path "$ant_home\bin"
     if ($env:ANT_HOME -ne $ant_home) {
         set_env "ANT_HOME" "$ant_home"
     }
-
 }
 
 function check_cygwin
 {
-    check_install -bin cygwin -pkg cygwin -path  "C:\Tools\cygwin"
-    set_path "C:\Tools\cygwin\bin"
+    $cyg_home = "C:\Tools\cygwin"
 
-    check_install -bin cyg-get -pkg cyg-get
+    set_path "$cyg_home"
+    set_path "$cyg_home\bin"
     sed -i "s#ftp://mirrors.kernel.org/sourceware/cygwin/#http://mirrors.kernel.org/sourceware/cygwin#" C:\ProgramData\chocolatey\lib\cyg-get\tools\cyg-get.ps1
-    
-    cyg_install -bin ssh -pkg openssh
-    cyg_install -bin cmake -pkg cmake
-    cyg_install -bin python -pkg python
-    cyg_install -bin 7z -pkg p7zip
-    cyg_install -bin ruby -pkg ruby
+}
+
+function check_tools
+{
+    cyg-get openssh,p7zip,cmake,python,ruby,rubygems,ruby2.devkit,nodejs.install
 }
 
 function check_python
@@ -151,32 +152,18 @@ function check_python
     pip_install -pkg treelib 
 }
 
-function check_android
-{
-    check_install -bin android -pkg android-sdk
-}
-
-
-function check_nodejs
-{
-    check_install -bin node -pkg nodejs.install -opt "-f"
-}
-
 function check_ruby
 {
-    check_install -bin ruby -pkg ruby -opt "-f" -ver "2.1.5" -path "C:\Tools\ruby215\bin"
-    check_install -pkg rubygems
+    #set_path "C:\Tools\ruby215\"
+    #set_path "C:\Tools\ruby215\bin"
 
-    check_install -bin devkitvars -pkg ruby2.devkit -path "C:\tools\DevKit2"
-    set_path "C:\tools\DevKit2\bin"
-    
-    Push-Location
-    cd "C:\tools\DevKit2"
-    ruby dk.rb init
-    ruby dk.rb install
-    Pop-Location
-
-   
+    #set_path "C:\tools\DevKit2"
+    #set_path "C:\tools\DevKit2\bin"
+    #Push-Location
+    #cd "C:\tools\DevKit2"
+    #ruby dk.rb init
+    #ruby dk.rb install
+    #Pop-Location
 }
 
 function check_calabash
@@ -240,8 +227,9 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 check_env
 check_ant
-#check_cygwin
+check_cygwin
 
+check_tools
 #check_python
 #check_ruby
 #check_calabash
