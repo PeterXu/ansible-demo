@@ -87,16 +87,29 @@ function cyg_install([string]$bin, $pkg)
 
 function pip_install($pkg)
 {
-    pip list $pkg | grep "^$pkg "
+    pip list | grep "^$pkg "
     $ret = $?
     if (!$ret) {
         pip install $pkg
     }
 }
 
-function check_pkg($pkg)
+function gem_install($pkg, [string]$ver)
 {
-    return False
+    if ($ver.Length -ne 0) {
+        gem list -l | grep "^$pkg ($ver)"
+        $ret = $?
+        if (!$ret) {
+            gem uninstall $pkg --force
+            gem install $pkg -v $ver
+        }
+    }else {
+        gem list -l | grep "^$pkg "
+        $ret = $?
+        if (!$ret) {
+            gem install $pkg
+        }
+    }
 }
 
 
@@ -104,8 +117,10 @@ function check_pkg($pkg)
 
 function check_env 
 {
-    if ($env:Home -ne $env:UserProfile) {
-        set_env "HOME" "$env:UserProfile"
+    $env_home = "$env:UserProfile"
+
+    if ($env:Home -ne $env_home) {
+        set_env "HOME" "$env_home"
     }
 }
 
@@ -121,32 +136,67 @@ function check_ant
 
 function check_cygwin
 {
-    $cyg_home = "C:\Tools\cygwin"
+    $cyg_ps = "C:\ProgramData\chocolatey\lib\cyg-get\tools\cyg-get.ps1"
 
     set_path "$cyg_home"
     set_path "$cyg_home\bin"
-    sed -i "s#ftp://mirrors.kernel.org/sourceware/cygwin/#http://mirrors.kernel.org/sourceware/cygwin#" C:\ProgramData\chocolatey\lib\cyg-get\tools\cyg-get.ps1
+
+    cat $cyg_ps | grep 'replace("" "","","")'
+    $ret = $?
+    if (!$ret) {
+        sed -i 'N;/$cygPackages = join-path $cygRoot packages/a\    $package = $package  -replace("" "","","")' $cyg_ps
+    }
+
+    cat $cyg_ps | grep "ftp://"
+    $ret = $?
+    if ($ret) {
+        sed -i "s#ftp://#http://#" $cyg_ps
+    }
 }
 
 function check_tools
 {
-    cyg-get openssh,p7zip,cmake,python,ruby,rubygems,ruby2.devkit,nodejs.install
+    $pkgs = "nasm,curl,wget,git,openssh,p7zip,cmake,python"
+    cyg-get "$pkgs"
+
+    cmd /C where 7z.bat
+    $ret = $?
+    if (!$ret) {
+        $cmdfile = "$cyg_home\bin\7z.bat" 
+        echo "$cyg_home\lib\p7zip\7z.exe %*" | out-file -filePath $cmdfile -encoding ASCII
+    }
+
+    cmd /C where python.bat
+    $ret = $?
+    if (!$ret) {
+        cmd /C where python2.7
+        $ret = $?
+        if ($ret) {
+            $cmdfile = "$cyg_home\bin\python.bat" 
+            echo "python2.7 %*" | out-file -filePath $cmdfile -encoding ASCII
+        }
+    }
+
+    cmd /C where pip.bat
+    $ret = $?
+    if (!$ret) {
+        rm -f get-pip.py
+        $pip = "https://bootstrap.pypa.io/get-pip.py"
+        wget $pip
+        python get_pip.py
+
+        $cmdfile = "$cyg_home\bin\pip.bat" 
+        echo "python /usr/bin/pip %*" | out-file -filePath $cmdfile -encoding ASCII
+    }
 }
 
 function check_python
 {
-    cmd /C where pip
-    $ret = $?
-    if (!$ret) {
-        echo "Cannot find pip for python ..."
-        return
-    }
-
     pip_install -pkg python-dateutil
-    #pip_install -pkg numpy
-    #pip_install -pkg matplotlib 
-    #pip_install -pkg pymatlab
-    #pip_install -pkg scipy
+    pip_install -pkg numpy
+    pip_install -pkg matplotlib 
+    pip_install -pkg pymatlab
+    pip_install -pkg scipy
     pip_install -pkg docutils 
     pip_install -pkg sphinx 
     pip_install -pkg treelib 
@@ -154,16 +204,16 @@ function check_python
 
 function check_ruby
 {
-    #set_path "C:\Tools\ruby215\"
-    #set_path "C:\Tools\ruby215\bin"
+    set_path "C:\Tools\ruby215\"
+    set_path "C:\Tools\ruby215\bin"
 
-    #set_path "C:\tools\DevKit2"
-    #set_path "C:\tools\DevKit2\bin"
-    #Push-Location
-    #cd "C:\tools\DevKit2"
-    #ruby dk.rb init
-    #ruby dk.rb install
-    #Pop-Location
+    set_path "C:\tools\DevKit2"
+    set_path "C:\tools\DevKit2\bin"
+    Push-Location
+    cd "C:\tools\DevKit2"
+    ruby dk.rb init
+    ruby dk.rb install
+    Pop-Location
 }
 
 function check_calabash
@@ -172,7 +222,8 @@ function check_calabash
     #gem sources -a http://rubygems.org/
 
     $fprc="$env:HOME\.gemrc"
-    echo "=> generating $fprc"
+    echo "=> generating: $fprc"
+    rm -f $fprc
     echo "---"                      | out-file -filePath $fprc -encoding ASCII
     echo ":backtrace: false"        | out-file -filePath $fprc -encoding ASCII -Append
     echo ":bulk_threshold: 1000"    | out-file -filePath $fprc -encoding ASCII -Append
@@ -185,30 +236,10 @@ function check_calabash
 
     gem update --system 2.3.0
 
-    gem list erubis -i 
-    $ret = $?
-    if (!$ret) {
-        gem install erubis
-    }
-    
-    gem list cucumber -i -v 1.3.18
-    $ret = $?
-    if (!$ret) {
-        gem uninstall cucumber --force
-        gem install cucumber -v 1.3.18
-    }
-
-    gem list -l | grep "^calabash " 
-    $ret = $?
-    if (!$ret) {
-        gem install calabash
-    }
-
-    gem list -l | grep "^calabash-android " 
-    $ret = $?
-    if (!$ret) {
-        gem install calabash-android
-    }
+    gem_install -pkg "erubis"
+    gem_install -pkg "cucumber" -ver "1.3.18"
+    gem_install -pkg "calabash"
+    gem_install -pkg "calabash-android"
 }
 
 
@@ -224,14 +255,15 @@ function check_calabash
 
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$cyg_home = "C:\Tools\cygwin"
 
 check_env
 check_ant
 check_cygwin
-
 check_tools
-#check_python
-#check_ruby
-#check_calabash
+
+check_python
+check_ruby
+check_calabash
 
 exit 0

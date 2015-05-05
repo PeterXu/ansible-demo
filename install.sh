@@ -33,7 +33,7 @@ if [ "$ver" = "1.9.0.1" ]; then
     echo "Please refer to https://github.com/cchurch/ansible/commit/5675982b0f64cbc3bf01eff63951d1302132c6d2"
 fi
 
-rm -f $HOME/.ansible
+rm -rf $HOME/.ansible
 ln -s `pwd` $HOME/.ansible
 
 if [ "$ANSIBLE_CONFIG" = "" ]; then
