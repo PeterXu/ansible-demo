@@ -10,21 +10,29 @@
       win_ping:
     - name: prepare ant
       win_chocolatey: name="ant -y"
+      ignore_errors: True
     - name: prepare cygwin
       win_chocolatey: name="cygwin -y"
+      ignore_errors: True
     - name: prepare cyg-get
       win_chocolatey: name="cyg-get -y"
+      ignore_errors: True
     - name: prepare nodejs.install
       win_chocolatey: name="nodejs.install -y"
+      ignore_errors: True
     - name: prepare ruby
       win_chocolatey: name="ruby -y" version="2.1.5"
+      ignore_errors: True
     - name: prepare rubygems
       win_chocolatey: name="rubygems -y"
+      ignore_errors: True
     - name: prepare ruby2.devkit
       win_chocolatey: name="ruby2.devkit -y"
+      ignore_errors: True
+    - name: prepare freeSSHD
+      win_chocolatey: name="freeSSHD -y"
+      ignore_errors: True
     - name: prepare tools by cyg-get
       script: ps_win.ps1
       
-        
-        
 

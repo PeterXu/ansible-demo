@@ -4,18 +4,15 @@ For Windows
     http://www.simlinux.com/books/Ansible-notes.pdf
 
 ### Run cmd/scripts in powershell
-    Set-ExecutionPolicy RemoteSigned
-    Set-ExecutionPolicy Unrestricted
-    Set-ExecutionPolicy -Scope "CurrentUser" -ExecutionPolicy "Unrestricted"
-    .\upgrade_to_ps3.ps1
+    1. Run "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" as Administrator
+    2. Set-ExecutionPolicy -Scope "CurrentUser" -ExecutionPolicy "Unrestricted"
+    3. upgrade_to_ps3.ps1
         => https://raw.githubusercontent.com/cchurch/ansible/devel/examples/scripts/upgrade_to_ps3.ps1
-    .\ConfigureRemotingForAnsible.ps1
+    4. config winrm
+        $> winrm quickconfig
+        $> winrm e winrm/config/listener
+    5. ConfigureRemotingForAnsible.ps1
         => https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
-
-### For winrm service
-    winrm enumerate winrm/config/listener
-    winrm quickconfig
-    winrm e winrm/config/listener
 
 ### For choco sources(default)
     choco install pkg -source=https://chocolatey.org/api/v2/

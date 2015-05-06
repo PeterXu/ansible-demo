@@ -101,10 +101,11 @@ HF-WIN
 
 
 [testwin]
-10.224.255.228 
+#10.224.255.228 
+171.68.18.46
 
 [testwin:vars]
 ansible_ssh_user=testbed 
-ansible_ssh_pass=wme@cisco 
+ansible_ssh_pass=pass 
 ansible_ssh_port=5986 
 ansible_connection=winrm

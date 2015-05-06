@@ -1,4 +1,28 @@
+# powershell for windows
+# - yongzxu@cisco.com
+#
 
+
+##======================================
+# global vars
+#
+$root = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+$tool_home = "C:\Tools"
+$cyg_home = "C:\Tools\cygwin"
+$choco_home = "C:\ProgramData\chocolatey"
+
+$env_change = 0
+$env_home = "$env:UserProfile"
+$env_who = "$env:username"
+$computer = "$env:computername"
+
+echo "[=] uname: $env_who, home: $env_home, computer: $computer"
+
+
+##======================================
+# util functions
+#
 function set_env($name, $value) 
 {
     if ($value -eq "") {
@@ -6,6 +30,7 @@ function set_env($name, $value)
     }
     if ($name -ne "Path") {
         [System.Environment]::SetEnvironmentVariable($name, $value, 'User')
+        $env_change = 1
     }
 }
 
@@ -17,6 +42,7 @@ function set_path($value)
     if ($env:Path.IndexOf($value) -eq -1) {
         $env:Path += ";$value"
         [System.Environment]::SetEnvironmentVariable('Path', $env:Path, 'User')
+        $env_change = 1
     }
 }
 
@@ -52,6 +78,34 @@ function send_msg
    [Win32.Nativemethods]::SendMessageTimeout($HWND_BROADCAST, $WM_SETTINGCHANGE, [UIntPtr]::Zero, "Environment", $flags, 5000, [ref] $result);
 }
 
+function check_logoff
+{ 
+    if ($env_change -eq 0) {
+        return
+    }
+
+    #0            Log Off
+    #4            Forced Log Off (0+4)
+    #1            Shutdown
+    #5            Forced Shutdown (1+4)
+    #2            Reboot
+    #6            Forced Reboot (2+4)
+    #8            Power Off
+    #12           Forced Power Off (8+4)
+    (Get-WMIObject -class Win32_OperatingSystem -Computername $computer).Win32Shutdown(0)
+}
+
+function reload_env
+{
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+    $env:Path += [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+        
+
+
+##======================================
+# install functions
+#
 function check_install([string]$bin, $pkg, $opt, [string]$ver, $path) 
 {
     if ($bin.Length -ne 0) {
@@ -113,33 +167,37 @@ function gem_install($pkg, [string]$ver)
 }
 
 
-##======================================
 
+##======================================
+# check functions
+#
 function check_env 
 {
-    $env_home = "$env:UserProfile"
-
-    if ($env:Home -ne $env_home) {
+    if ($env:HOME -ne $env_home) {
         set_env "HOME" "$env_home"
     }
+    set_path "$choco_home\bin"
+    reload_env
 }
 
 function check_ant 
 {
-    $ant_home = "C:\Tools\apache-ant-1.9.4"
+    $ant_home = "$tool_home\apache-ant-1.9.4"
 
     set_path "$ant_home\bin"
     if ($env:ANT_HOME -ne $ant_home) {
         set_env "ANT_HOME" "$ant_home"
     }
+    reload_env
 }
 
 function check_cygwin
 {
-    $cyg_ps = "C:\ProgramData\chocolatey\lib\cyg-get\tools\cyg-get.ps1"
+    $cyg_ps = "$choco_home\lib\cyg-get\tools\cyg-get.ps1"
 
     set_path "$cyg_home"
     set_path "$cyg_home\bin"
+    reload_env
 
     cat $cyg_ps | grep 'replace("" "","","")'
     $ret = $?
@@ -180,18 +238,37 @@ function check_tools
     cmd /C where pip.bat
     $ret = $?
     if (!$ret) {
-        rm -f get-pip.py
-        $pip = "https://bootstrap.pypa.io/get-pip.py"
-        wget $pip
-        python get_pip.py
+        $src = "https://bootstrap.pypa.io/get-pip.py"
+        $dest = "$env_home\get-pip.py"
+        Remove-Item $dest -Force
+        Invoke-WebRequest $src -OutFile $dest
+        python $dest
 
         $cmdfile = "$cyg_home\bin\pip.bat" 
         echo "python /usr/bin/pip %*" | out-file -filePath $cmdfile -encoding ASCII
     }
 }
 
+function check_ssh
+{
+    cmd /C ls $env_home\.ssh\id_rsa 
+    $ret = $?
+    if (!$ret) {
+        ssh-keygen -t rsa -C "tesbed@$computer" -f $env_home\.ssh\id_rsa -q -N "''"
+    }
+
+    cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u testbed -w "wme@cisco"
+    run /usr/sbin/sshd
+}
+
 function check_python
 {
+    cmd /C where pip
+    $ret = $?
+    if (!$ret) {
+        return
+    }
+
     pip_install -pkg python-dateutil
     pip_install -pkg numpy
     pip_install -pkg matplotlib 
@@ -204,16 +281,22 @@ function check_python
 
 function check_ruby
 {
-    set_path "C:\Tools\ruby215\"
-    set_path "C:\Tools\ruby215\bin"
+    set_path "$tool_home\ruby215"
+    set_path "$tool_home\ruby215\bin"
+    reload_env
 
-    set_path "C:\tools\DevKit2"
-    set_path "C:\tools\DevKit2\bin"
+    set_path "$tool_home\DevKit2"
+    set_path "$tool_home\DevKit2\bin"
+    reload_env
+
     Push-Location
-    cd "C:\tools\DevKit2"
+    cd "$tool_home\DevKit2"
     ruby dk.rb init
+    sed -i 's#C:/Ruby193#C:\Tools\ruby215#' config.yml
     ruby dk.rb install
     Pop-Location
+
+    reload_env
 }
 
 function check_calabash
@@ -221,9 +304,9 @@ function check_calabash
     #gem sources -r https://rubygems.org/
     #gem sources -a http://rubygems.org/
 
-    $fprc="$env:HOME\.gemrc"
+    $fprc="$env_home\.gemrc"
     echo "=> generating: $fprc"
-    rm -f $fprc
+    Remove-Item $fprc -Force
     echo "---"                      | out-file -filePath $fprc -encoding ASCII
     echo ":backtrace: false"        | out-file -filePath $fprc -encoding ASCII -Append
     echo ":bulk_threshold: 1000"    | out-file -filePath $fprc -encoding ASCII -Append
@@ -240,7 +323,10 @@ function check_calabash
     gem_install -pkg "cucumber" -ver "1.3.18"
     gem_install -pkg "calabash"
     gem_install -pkg "calabash-android"
+
+    reload_env
 }
+
 
 
 
@@ -253,17 +339,19 @@ function check_calabash
 #   android ndk
 #########################
 
-
-$root = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$cyg_home = "C:\Tools\cygwin"
+reload_env
 
 check_env
 check_ant
 check_cygwin
-check_tools
 
+check_tools
+check_ssh
 check_python
 check_ruby
+
 check_calabash
+
+check_logoff
 
 exit 0
