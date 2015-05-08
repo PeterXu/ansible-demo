@@ -99,6 +99,7 @@ check_env() {
     fi
 
     if ! [[ "$PATH" =~ "/opt/local/bin" ]]; then
+        $sudo mkdir -p /opt/local/bin
         echo "export PATH=/opt/local/bin:\$PATH" >> ~/.bash_profile
         export PATH=/opt/local/bin:$PATH
     fi
