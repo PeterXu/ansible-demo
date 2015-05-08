@@ -214,7 +214,7 @@ function check_cygwin
 
 function check_tools
 {
-    $pkgs = "nasm,curl,wget,git,openssh,p7zip,cmake,python"
+    $pkgs = "nasm,curl,wget,git,openssh,p7zip,cmake"
     cyg-get "$pkgs"
 
     cmd /C where 7z.bat
@@ -224,18 +224,7 @@ function check_tools
         echo "$cyg_home\lib\p7zip\7z.exe %*" | out-file -filePath $cmdfile -encoding ASCII
     }
 
-    cmd /C where python.bat
-    $ret = $?
-    if (!$ret) {
-        cmd /C where python2.7
-        $ret = $?
-        if ($ret) {
-            $cmdfile = "$cyg_home\bin\python.bat" 
-            echo "python2.7 %*" | out-file -filePath $cmdfile -encoding ASCII
-        }
-    }
-
-    cmd /C where pip.bat
+    cmd /C where pip
     $ret = $?
     if (!$ret) {
         $src = "https://bootstrap.pypa.io/get-pip.py"
@@ -243,9 +232,6 @@ function check_tools
         Remove-Item $dest -Force
         Invoke-WebRequest $src -OutFile $dest
         python $dest
-
-        $cmdfile = "$cyg_home\bin\pip.bat" 
-        echo "python /usr/bin/pip %*" | out-file -filePath $cmdfile -encoding ASCII
     }
 }
 
@@ -254,6 +240,7 @@ function check_ssh
     cmd /C ls $env_home\.ssh\id_rsa 
     $ret = $?
     if (!$ret) {
+        cmd /C mkdir $env_home\.ssh
         ssh-keygen -t rsa -C "tesbed@$computer" -f $env_home\.ssh\id_rsa -q -N "''"
     }
 
@@ -292,7 +279,9 @@ function check_ruby
     Push-Location
     cd "$tool_home\DevKit2"
     ruby dk.rb init
-    sed -i 's#C:/Ruby193#C:\Tools\ruby215#' config.yml
+    #sed -i 's#C:/Ruby193#C:\Tools\ruby215#' config.yml
+    echo "---" | out-file -filePath config.yml -encoding ASCII
+    echo " - C:\Tools\ruby215" | out-file -filePath config.yml -encoding ASCII -Append
     ruby dk.rb install
     Pop-Location
 
