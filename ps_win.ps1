@@ -250,6 +250,9 @@ function check_ssh
 
 function check_python
 {
+    set_path "$tool_home\python2"
+    set_path "$tool_home\python2\Scripts"
+
     cmd /C where pip
     $ret = $?
     if (!$ret) {
@@ -341,6 +344,6 @@ check_ruby
 
 check_calabash
 
-check_logoff
+#check_logoff
 
 exit 0

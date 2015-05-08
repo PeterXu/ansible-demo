@@ -19,8 +19,10 @@
       ignore_errors: True
     - name: prepare python
       win_chocolatey: name="python2 -y"
+      ignore_errors: True
     #- name: prepare pip
     #  win_chocolatey: name="pip -y"
+    #  ignore_errors: True
     - name: prepare nodejs.install
       win_chocolatey: name="nodejs.install -y"
       ignore_errors: True
