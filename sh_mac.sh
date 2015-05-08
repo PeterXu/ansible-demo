@@ -104,10 +104,10 @@ check_env() {
         dname=`dirname $item`
         bname=`basename $item`
         user=`ls -l $dname | grep " $bname$" | awk '{print $3}'`
-        if [ "$user" != "$who" ]; then
+        #if [ "$user" != "$who" ]; then
             $sudo mkdir -p $item
             $sudo chown -R $who:wheel $item
-        fi
+        #fi
     done
 
     $sudo mkdir -p /opt/local/bin
