@@ -170,9 +170,11 @@ check_nasm() {
     [ -f $nasm ] && $nasm -version | grep "2.11" && has_nasm=2
 
     if [ $has_nasm -eq 0 ]; then
+        rm -f /tmp/nasm.zip
         nasm_uri="http://www.nasm.us/pub/nasm/releasebuilds/2.11.06/macosx/nasm-2.11.06-macosx.zip"
         wget $nasm_uri -O /tmp/nasm.zip
 
+        rm -rf /opt/local/nasm-2.11.06
         unzip /tmp/nasm.zip -d /opt/local/
         pkg="/opt/local/nasm-2.11.06/nasm"
     fi
@@ -186,7 +188,7 @@ check_nasm() {
 ###=========================================
 
 check_android() {
-    brew_install -b android -p android-sdk || return 1
+    brew_install -b adb -p android-sdk || return 1
     brew_install -b ndk-build -p android-ndk || return 1
 
     if [ "$ANDROID_HOME" = "" ]; then
