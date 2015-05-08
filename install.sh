@@ -23,7 +23,9 @@ python get-pip.py
 
 
 # For ansible
+brew update
 brew install ansible
+brew upgrade ansible
 pip install pywinrm kerberos pykerberos
 
 
