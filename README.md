@@ -1,17 +1,21 @@
-For Windows
------------
+Documents For Ansible Setting
+=============================
 
-    http://www.simlinux.com/books/Ansible-notes.pdf
+    Refer: http://www.simlinux.com/books/Ansible-notes.pdf
+
+
+1. How For Windows Remote
+-------------------------
 
 ### Run cmd/scripts in powershell
-    1. Run "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" as Administrator
-    2. Set-ExecutionPolicy -Scope "CurrentUser" -ExecutionPolicy "Unrestricted"
-    3. upgrade_to_ps3.ps1
+    a. Run "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" as Administrator
+    b. Set-ExecutionPolicy -Scope "CurrentUser" -ExecutionPolicy "Unrestricted"
+    c. upgrade_to_ps3.ps1
         => https://raw.githubusercontent.com/cchurch/ansible/devel/examples/scripts/upgrade_to_ps3.ps1
-    4. config winrm
+    d. config winrm
         $> winrm quickconfig
         $> winrm e winrm/config/listener
-    5. ConfigureRemotingForAnsible.ps1
+    e. ConfigureRemotingForAnsible.ps1
         => https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
 
 ### For choco sources(default)
@@ -26,19 +30,31 @@ For Windows
 
 
 
-For Nix
--------
+2. How For Mac Remote
+---------------------
 
-### Set env
+### Prepare remote machine
+    a. Create user "jenkins" with sudo without password (by visudo)
+    b. Install sshd and Start it 
+
+
+
+3. How For Mac Local
+--------------------
+
+### Set env in local machine
     sh install.sh
 
-### Config Hosts
+### Config Hosts in local
     Add new hosts into file of "hosts".
 
-### Check Mac slaves
-    ansible-playbook mac.yml
+### Check Mac slaves over ssh
+    a. at first: 
+        ansible-playbook -k mac.yml (which will need you input ssh password)
+    b. next time:
+        ansible-playbook mac.yml
 
-### Check Win slaves
+### Check Win slaves over winrm
     ansible-playbook win.yml
 
 
