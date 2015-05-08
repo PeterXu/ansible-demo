@@ -98,6 +98,11 @@ check_env() {
         export PATH=/usr/local/bin:$PATH
     fi
 
+    if ! [[ "$PATH" =~ "/opt/local/bin" ]]; then
+        echo "export PATH=/opt/local/bin:\$PATH" >> ~/.bash_profile
+        export PATH=/opt/local/bin:$PATH
+    fi
+
     dlist=(/usr/local /opt/local /Library/Caches/Homebrew /Library/Ruby/Gems)
     for item in ${dlist[@]}; 
     do
