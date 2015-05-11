@@ -19,6 +19,11 @@ Documents For Ansible Setting
     e. ConfigureRemotingForAnsible.ps1 (you can get it from)
         => ps1/ConfigureRemotingForAnsible.ps1
         => https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
+    f. Set read-write permissions
+        $Acl = Get-Acl "C:\ProgramData"
+        Set-Acl "C:\Program Files" $Acl
+        Set-Acl "C:\Program Files (x86)" $Acl
+
 
 ### For choco sources(default)
     choco install pkg -source=https://chocolatey.org/api/v2/

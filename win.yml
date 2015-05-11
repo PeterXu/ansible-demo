@@ -17,6 +17,9 @@
     - name: prepare cyg-get
       win_chocolatey: name="cyg-get -y"
       ignore_errors: True
+    - name: prepare jdk7
+      win_chocolatey: name="jdk7 -y"
+      ignore_errors: True
     - name: prepare python
       win_chocolatey: name="python2 -y"
       ignore_errors: True
