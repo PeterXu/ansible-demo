@@ -10,12 +10,14 @@ Documents For Ansible Setting
 ### Run cmd/scripts in powershell
     a. Run "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" as Administrator
     b. Set-ExecutionPolicy -Scope "CurrentUser" -ExecutionPolicy "Unrestricted"
-    c. upgrade_to_ps3.ps1
+    c. upgrade_to_ps3.ps1(you can get it from)
+        => ps1/upgrade_to_ps3.ps1
         => https://raw.githubusercontent.com/cchurch/ansible/devel/examples/scripts/upgrade_to_ps3.ps1
     d. config winrm
         $> winrm quickconfig
         $> winrm e winrm/config/listener
-    e. ConfigureRemotingForAnsible.ps1
+    e. ConfigureRemotingForAnsible.ps1 (you can get it from)
+        => ps1/ConfigureRemotingForAnsible.ps1
         => https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
 
 ### For choco sources(default)
