@@ -8,6 +8,9 @@
   tasks:
     - name: ping win
       win_ping:
+    - name: prepare jdk8
+      win_chocolatey: name="jdk8 -y"
+      ignore_errors: True
     - name: prepare ant
       win_chocolatey: name="ant -y"
       ignore_errors: True
@@ -17,15 +20,9 @@
     - name: prepare cyg-get
       win_chocolatey: name="cyg-get -y"
       ignore_errors: True
-    - name: prepare jdk7
-      win_chocolatey: name="jdk7 -y"
-      ignore_errors: True
     - name: prepare python
       win_chocolatey: name="python2 -y"
       ignore_errors: True
-    #- name: prepare pip
-    #  win_chocolatey: name="pip -y"
-    #  ignore_errors: True
     - name: prepare nodejs.install
       win_chocolatey: name="nodejs.install -y"
       ignore_errors: True
@@ -42,6 +39,6 @@
       win_chocolatey: name="freeSSHD -y"
       ignore_errors: True
     - name: prepare tools by cyg-get
-      script: ps_win.ps1
+      script: ps_win.bat
       
 

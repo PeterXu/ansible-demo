@@ -245,7 +245,7 @@ function check_ssh
     }
 
     cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u testbed -w "wme@cisco"
-    run /usr/sbin/sshd
+    #run /usr/sbin/sshd
 }
 
 function check_python
@@ -330,6 +330,9 @@ function check_calabash
 #   android sdk
 #   android ndk
 #########################
+
+# Start powershell as Administrator
+#Start-Process PowerShell –Verb RunAs
 
 reload_env
 
