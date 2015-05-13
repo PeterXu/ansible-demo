@@ -8,11 +8,14 @@
   tasks:
     - name: ping win
       win_ping:
-    - name: prepare jdk8
-      win_chocolatey: name="jdk8 -y"
-      ignore_errors: True
     - name: prepare ant
       win_chocolatey: name="ant -y"
+      ignore_errors: True
+    - name: set read-write
+      script: ps_set.ps1
+      ignore_errors: True
+    - name: prepare jdk8
+      win_chocolatey: name="jdk8 -y"
       ignore_errors: True
     - name: prepare cygwin
       win_chocolatey: name="cygwin -y"
@@ -38,7 +41,8 @@
     - name: prepare freeSSHD
       win_chocolatey: name="freeSSHD -y"
       ignore_errors: True
-    - name: prepare tools by cyg-get
-      script: ps_win.bat
+    - name: set tools by cyg-get
+      script: ps_win.ps1
+      ignore_errors: True
       
 
