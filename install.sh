@@ -33,6 +33,8 @@ ver=$(ansible --version | grep "ansible" | awk '{print $2}')
 if [ "$ver" = "1.9.0.1" ]; then
     echo "Should fix some bugs for ansible-$ver"
     echo "Please refer to https://github.com/cchurch/ansible/commit/5675982b0f64cbc3bf01eff63951d1302132c6d2"
+elif [ "$ver" = "1.9.1" ]; then
+    cp -f update/winrm.py /usr/local/Cellar/ansible/1.9.1/libexec/lib/python2.7/site-packages/ansible/runner/connection_plugins/winrm.py
 fi
 
 rm -rf $HOME/.ansible
