@@ -271,6 +271,12 @@ function check_python
 
 function check_ruby
 {
+    # set firewall rule
+    $ruby = "$tool_home\ruby215\bin\ruby.exe"
+    netsh advfirewall firewall add rule name="RubyUDP" dir=in action=allow program="$ruby" protocol=UDP profile=public enable=yes
+    netsh advfirewall firewall add rule name="RubyTCP" dir=in action=allow program="$ruby" protocol=TCP profile=public enable=yes
+
+
     set_path "$tool_home\ruby215"
     set_path "$tool_home\ruby215\bin"
     reload_env
