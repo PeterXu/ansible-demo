@@ -4,10 +4,17 @@
   gather_facts: false
   vars:
     uname: testbed
+    vcpyurl: "http://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi"
   remote_user: "{{uname}}"
   tasks:
     - name: ping win
       win_ping:
+    - name: download VCForPython27
+      win_get_url: url={{vcpyurl}} dest="C:\Users\{{uname}}\VCForPython27.msi"
+      ignore_errors: True
+    - name: install VCForPython27
+      win_msi: path="C:\Users\{{uname}}\VCForPython27.msi"
+      ignore_errors: True
     - name: prepare ant
       win_chocolatey: name="ant -y"
       ignore_errors: True
