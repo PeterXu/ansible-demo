@@ -283,16 +283,40 @@ TE7JcpI1RZqI4sf52QIDvppHkdZEIgFmf3STROrvfdbQxKY5ZTuDC2w=
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+kEUudHUkrmBivhGoe2PWVE6fYf/JjC3gPPkVHRTDOm0fBqB0BwdeBWSvEKot4dyBDh23DcZGlwI91h9L8fHOVLkeB1Y0Ey8WaaXLYgnnyGIms844nsG8ad27T1qfWZGqVneOtq8ogtACMxbLbItdWSR7FmbMF2D9fPGzpHZiTohND8/aRN5urvegPkb/DbT0pfyrCE7QjYo6xVE32dA5dJJbqFAoW2RIq5cabt262uvbqzIWLhysMYwcvtmu/Bjx4/lZKjVE4iVKoUk6+Dh4FheGTqzHxqewYoftAVwT5NlyN jenkins@whsus-iMac.local
 "@
 
-    $fp_id_rsa = "$env_home\.ssh\id_rsa"
-    $fp_id_rsa_pub = "$env_home\.ssh\id_rsa.pub"
-    if (Test-Path $fp_id_rsa) {
-    }else {
-        echo $id_rsa        | out-file -filePath $fp_id_rsa -encoding ASCII
-        echo $id_rsa_pub    | out-file -filePath $fp_id_rsa_pub -encoding ASCII
+
+    # stop sshd
+    $cmdstr = "ps | grep sshd | awk -F `" `" '{print `$1}'"
+    $sshpid = cmd /C $cmdstr
+    if ($sshpid -and $sshpid -gt 0) {
+        cmd /C kill -9 $sshpid
     }
 
-    cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u testbed -w "wme@cisco"
-    #run /usr/sbin/sshd
+    # set windows id_rsa
+    $ssh_path = "$env_home\.ssh"
+    cmd /C mkdir -p $ssh_path
+    if (Test-Path "$ssh_path\id_rsa") {
+    }else {
+        echo $id_rsa        | out-file -filePath "$ssh_path\id_rsa" -encoding ASCII
+        echo $id_rsa_pub    | out-file -filePath "$ssh_path\id_rsa.pub" -encoding ASCII
+    }
+
+    # set sshd
+    $ssh_name = "testbed"
+    $ssh_pass = "wme@cisco"
+    cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u $ssh_name -w $ssh_pass
+    
+    # set cygwin id_rsa
+    $ssh_path2 = "$cyg_home\home\$ssh_name\.ssh"
+    cmd /C mkdir -p $ssh_path2
+    echo $id_rsa        | out-file -filePath "$ssh_path2\id_rsa" -encoding ASCII
+    echo $id_rsa_pub    | out-file -filePath "$ssh_path2\id_rsa.pub" -encoding ASCII
+    cmd /C chmod 600 "$ssh_path2/id_rsa"
+
+
+    # start sshd
+    $sshd = "$cyg_home\usr\sbin\sshd.exe"
+    netsh advfirewall firewall add rule name="SSHD" dir=in action=allow program="$sshd" protocol=TCP profile=public enable=yes
+    cmd /C "run /usr/sbin/sshd"
 }
 
 function check_python
