@@ -1,3 +1,15 @@
+Param(
+  [string]$target
+)
+
+if ($target) {
+    echo "Process $target ..."
+} else { 
+    echo "usage: ps_win.ps1 target"  
+    exit 0 
+}
+
+
 # powershell for windows
 # - yongzxu@cisco.com
 #
@@ -238,7 +250,7 @@ function check_tools
 
 function check_ssh
 {
-    $id_key =@"
+    $id_rsa =@"
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEA1ciD4LoouaBsfOLH142gI/TuQpb1VxwDhagjJ6N/pBFLnR1J
 K5gYr4RqHtj1lROn2H/yYwt4Dz5FR0UwzptHwagdAcHXgVkrxCqLeHcgQ4dtw3GR
@@ -271,11 +283,12 @@ TE7JcpI1RZqI4sf52QIDvppHkdZEIgFmf3STROrvfdbQxKY5ZTuDC2w=
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+kEUudHUkrmBivhGoe2PWVE6fYf/JjC3gPPkVHRTDOm0fBqB0BwdeBWSvEKot4dyBDh23DcZGlwI91h9L8fHOVLkeB1Y0Ey8WaaXLYgnnyGIms844nsG8ad27T1qfWZGqVneOtq8ogtACMxbLbItdWSR7FmbMF2D9fPGzpHZiTohND8/aRN5urvegPkb/DbT0pfyrCE7QjYo6xVE32dA5dJJbqFAoW2RIq5cabt262uvbqzIWLhysMYwcvtmu/Bjx4/lZKjVE4iVKoUk6+Dh4FheGTqzHxqewYoftAVwT5NlyN jenkins@whsus-iMac.local
 "@
 
-    cmd /C ls $env_home\.ssh\id_rsa 
-    $ret = $?
-    if (!$ret) {
-        cmd /C mkdir $env_home\.ssh
-        ssh-keygen -t rsa -C "tesbed@$computer" -f $env_home\.ssh\id_rsa -q -N "''"
+    $fp_id_rsa = "$env_home\.ssh\id_rsa"
+    $fp_id_rsa_pub = "$env_home\.ssh\id_rsa.pub"
+    if (Test-Path $fp_id_rsa) {
+    }else {
+        echo $id_rsa        | out-file -filePath $fp_id_rsa -encoding ASCII
+        echo $id_rsa_pub    | out-file -filePath $fp_id_rsa_pub -encoding ASCII
     }
 
     cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u testbed -w "wme@cisco"
@@ -373,17 +386,6 @@ function check_calabash
 
 # Start powershell as Administrator
 #Start-Process PowerShell –Verb RunAs
-
-Param(
-  [string]$target
-)
-
-if ($target) {
-    echo "Process $target ..."
-} else { 
-    echo "usage: ps_win.ps1 target"  
-    exit 0 
-}
 
 
 check_env
