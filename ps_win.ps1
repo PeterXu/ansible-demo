@@ -173,6 +173,7 @@ function gem_install($pkg, [string]$ver)
 #
 function check_env 
 {
+    reload_env
     if ($env:HOME -ne $env_home) {
         set_env "HOME" "$env_home"
     }
@@ -237,6 +238,39 @@ function check_tools
 
 function check_ssh
 {
+    $id_key =@"
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEA1ciD4LoouaBsfOLH142gI/TuQpb1VxwDhagjJ6N/pBFLnR1J
+K5gYr4RqHtj1lROn2H/yYwt4Dz5FR0UwzptHwagdAcHXgVkrxCqLeHcgQ4dtw3GR
+pcCPdYfS/HxzlS5HgdWNBMvFmmly2IJ58hiJrPOOJ7BvGndu09an1mRqlZ3jravK
+ILQAjMWy2yLXVkkexZmzBdg/Xzxs6R2Yk6ITQ/P2kTebq73oD5G/w209KX8qwhO0
+I2KOsVRN9nQOXSSW6hQKFtkSKuXGm7dutrr26syFi4crDGMHL7ZrvwY8eP5WSo1R
+OIlSqFJOvg4eBYXhk6sx8ansGKH7QFcE+TZcjQIDAQABAoIBAQC76y5BdGIoCaRT
+guU3zP5fnQVy809l6vINouaECWxBxBI7YWrYLzJD1pmR1BTLniOEY7Ok7If0nkA3
+jdKBSm2hBS26RbIxuTiHjv5aPhzWP01053enw8RXA7Wqy5quH6grsJPtC1H/kYGq
+X8bh0D/1D4J90NFY6nM5Mw8Fne8y46OYZljbOplVIfCc7XKU5KotvYjvm2sw08jL
+ff89XpefuQoMnwwv7KLiRx3ohPtEaC8/pB6nbFulbtJ1pyMAydAcgUNnmAqMsehM
+7vTuPXvuVdUjHmfVUu7t057svFZWHhjnu4hhsH42ci4gWdZk45Z90vCjbQcXqq/k
+5hX/xNsBAoGBAPKpe9s1uvsL8DE7tgkPlBH3DAlrF7rLZYvzUyXXN8mnXk4VSoXg
+RJw+jVyJpRpOvHTsfJtvp0l528RSnZXzNoGB/6QgB9T4EtLlbsG+/BfUjGwAajVR
+FY6bR8gcmbBrkSeWg86zaydA8mh2k+uxs8Cab1KY/aCGQCH9AvolJ1m5AoGBAOGI
+rP6o54KkgyVEbI8gvhWBjVAZymN2BFc9gHSIu/Xu2IVe10DjATGVvtBwVtHK/w8a
+S2qznIp/M3aZu/t0Ja5IHRKzZeb3nMlFDvf99MrFQhxZAa3wOaaCAXEvwj73waex
+ERTk7EHFFZQTLrprvNGnY9aSmGlFcVnHw2jVbrN1AoGAFmEDByhhYh2rvR6gnx1M
+rot2FLhHq/ZuGwYJuQesIXDKBbF4+ffA3Bf4uXwIOfDg+HeG1l7psqEGX4iu99FC
+SZdPmDdMAZwPQFvgZwXSAfCcMqmnIdukfU5cxFu+4MJK1LfQ2BM74pbexDuLUMVG
+qpCTi66IVXGMIJZQ2/jpNCECgYEAyVIcwpH5XqgFnU2v7i+XHlFv2FG9VP1zMIDo
+2p130zeqtZsMYJKCbUWzeBLfnRQsi8m4Cn5cPVEAmlzu7a4nOKSMtzXGv97GaO+p
+Rfu++QYOVompMyAeBiFEskmkhlrY1hz8F3+l2avY8D4TVzt26FsYhuCDBm2DmlX0
+e+8Ri0UCgYEAjvQn1tJjoZuRbBfRaEitP6UCFPokdDCn1wXDmT9pod3320INGmJa
+Xhet1sN6qkMbRYRAsLteABF4BFWNrqDcntcpX5prWGnZkQMr0T+7QilX6JuA46WZ
+TE7JcpI1RZqI4sf52QIDvppHkdZEIgFmf3STROrvfdbQxKY5ZTuDC2w=
+-----END RSA PRIVATE KEY-----
+"@
+    $id_rsa_pub = @"
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+kEUudHUkrmBivhGoe2PWVE6fYf/JjC3gPPkVHRTDOm0fBqB0BwdeBWSvEKot4dyBDh23DcZGlwI91h9L8fHOVLkeB1Y0Ey8WaaXLYgnnyGIms844nsG8ad27T1qfWZGqVneOtq8ogtACMxbLbItdWSR7FmbMF2D9fPGzpHZiTohND8/aRN5urvegPkb/DbT0pfyrCE7QjYo6xVE32dA5dJJbqFAoW2RIq5cabt262uvbqzIWLhysMYwcvtmu/Bjx4/lZKjVE4iVKoUk6+Dh4FheGTqzHxqewYoftAVwT5NlyN jenkins@whsus-iMac.local
+"@
+
     cmd /C ls $env_home\.ssh\id_rsa 
     $ret = $?
     if (!$ret) {
@@ -340,18 +374,29 @@ function check_calabash
 # Start powershell as Administrator
 #Start-Process PowerShell –Verb RunAs
 
-reload_env
+Param(
+  [string]$target
+)
+
+if ($target) {
+    echo "Process $target ..."
+} else { 
+    echo "usage: ps_win.ps1 target"  
+    exit 0 
+}
+
 
 check_env
-check_ant
-check_cygwin
 
-check_tools
-check_ssh
-check_python
-check_ruby
-
-check_calabash
+$tasks = @("ant", "cygwin", "tools", "ssh", "python", "ruby", "calabash")
+ForEach ($task In $tasks) {
+    if ($target -eq $task -or $target -eq "all") {
+        $func = "check_$task"
+        if (Get-Command $func -errorAction SilentlyContinue) {
+            & $func
+        }
+    } 
+}
 
 #check_logoff
 

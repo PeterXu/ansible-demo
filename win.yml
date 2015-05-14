@@ -42,7 +42,7 @@
       win_chocolatey: name="freeSSHD -y"
       ignore_errors: True
     - name: set tools by cyg-get
-      script: ps_win.ps1
+      script: ps_win.ps1 all
       ignore_errors: True
       
 
