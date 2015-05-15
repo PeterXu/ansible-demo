@@ -298,7 +298,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     $ssh_pass = "wme@cisco"
 
     # remove sshd service
-    choco uninstall freeSSHD -y
     cmd /C "cygrunsrv -L | grep sshd && cgyrunsrv -R sshd"
     cmd /C "rm -rf /home/testbed"
 
@@ -322,6 +321,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     echo $id_rsa        | out-file -filePath "$ssh_path2\id_rsa" -encoding ASCII
     echo $id_rsa_pub    | out-file -filePath "$ssh_path2\id_rsa.pub" -encoding ASCII
     cmd /C chmod 600 "$ssh_path2/id_rsa"
+
+    #choco uninstall freeSSHD -y
+    choco install freeSSHD -y
     return
 
     # start sshd
