@@ -316,7 +316,14 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
 
     # start sshd
     $sshd = "$cyg_home\usr\sbin\sshd.exe"
-    netsh advfirewall firewall add rule name="SSHD" dir=in action=allow program="$sshd" protocol=TCP profile=public enable=yes
+    $name = "sshdUDP"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=UDP profile=all enable=yes
+
+    $name = "sshdTCP"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=TCP profile=all enable=yes
+
     cmd /C "run /usr/sbin/sshd"
 }
 
@@ -345,8 +352,12 @@ function check_ruby
 {
     # set firewall rule
     $ruby = "$tool_home\ruby215\bin\ruby.exe"
-    netsh advfirewall firewall add rule name="RubyUDP" dir=in action=allow program="$ruby" protocol=UDP profile=public enable=yes
-    netsh advfirewall firewall add rule name="RubyTCP" dir=in action=allow program="$ruby" protocol=TCP profile=public enable=yes
+    $name = "RubyUDP"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$ruby" protocol=UDP profile=public enable=yes
+    $name = "RubyTCP"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$ruby" protocol=TCP profile=public enable=yes
 
 
     set_path "$tool_home\ruby215"
