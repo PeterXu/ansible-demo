@@ -301,7 +301,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     choco uninstall freeSSHD -y
     cmd /C "cygrunsrv -L | grep sshd && cgyrunsrv -R sshd"
     cmd /C "rm -rf /home/testbed"
-    return
 
     # set firewall
     $name = "sshd"
@@ -316,6 +315,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     if ($sshpid -and $sshpid -gt 0) {
         cmd /C kill -9 $sshpid
     }
+    return
 
     # set sshd host
     cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u $ssh_name -w $ssh_pass
