@@ -294,7 +294,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
 
     # set windows id_rsa
     $ssh_path = "$env_home\.ssh"
-    cmd /C mkdir -p $ssh_path
+    cmd /C $cyg_home\bin\mkdir -p $ssh_path
     if (Test-Path "$ssh_path\id_rsa") {
     }else {
         echo $id_rsa        | out-file -filePath "$ssh_path\id_rsa" -encoding ASCII
@@ -308,7 +308,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     
     # set cygwin id_rsa
     $ssh_path2 = "$cyg_home\home\$ssh_name\.ssh"
-    cmd /C mkdir -p $ssh_path2
+    cmd /C $cyg_home\bin\mkdir -p $ssh_path2
     echo $id_rsa        | out-file -filePath "$ssh_path2\id_rsa" -encoding ASCII
     echo $id_rsa_pub    | out-file -filePath "$ssh_path2\id_rsa.pub" -encoding ASCII
     cmd /C chmod 600 "$ssh_path2/id_rsa"
