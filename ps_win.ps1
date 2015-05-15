@@ -294,7 +294,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
 
     ################################################
     # Set SSHD service
-    $ssh_name = "jenkins"
+    $ssh_name = "testbed"
     $ssh_pass = "wme@cisco"
 
     # remove sshd service
