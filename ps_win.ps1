@@ -315,19 +315,17 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     if ($sshpid -and $sshpid -gt 0) {
         cmd /C kill -9 $sshpid
     }
-    return
 
-    # set sshd host
-    cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u $ssh_name -w $ssh_pass
-    
     # set sshd id_rsa
     $ssh_path2 = "$cyg_home\home\$ssh_name\.ssh"
     cmd /C $cyg_home\bin\mkdir -p $ssh_path2
     echo $id_rsa        | out-file -filePath "$ssh_path2\id_rsa" -encoding ASCII
     echo $id_rsa_pub    | out-file -filePath "$ssh_path2\id_rsa.pub" -encoding ASCII
     cmd /C chmod 600 "$ssh_path2/id_rsa"
+    return
 
     # start sshd
+    cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u $ssh_name -w $ssh_pass
     cmd /C "run /usr/sbin/sshd"
 }
 
