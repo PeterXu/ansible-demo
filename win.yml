@@ -38,9 +38,6 @@
     - name: prepare ruby2.devkit
       win_chocolatey: name="ruby2.devkit -y"
       ignore_errors: True
-    - name: prepare freeSSHD
-      win_chocolatey: name="freeSSHD -y"
-      ignore_errors: True
     - name: set tools by cyg-get
       script: ps_win.ps1 all
       ignore_errors: True

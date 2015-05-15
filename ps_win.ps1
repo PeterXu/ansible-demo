@@ -284,30 +284,31 @@ TE7JcpI1RZqI4sf52QIDvppHkdZEIgFmf3STROrvfdbQxKY5ZTuDC2w=
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+kEUudHUkrmBivhGoe2PWVE6fYf/JjC3gPPkVHRTDOm0fBqB0BwdeBWSvEKot4dyBDh23DcZGlwI91h9L8fHOVLkeB1Y0Ey8WaaXLYgnnyGIms844nsG8ad27T1qfWZGqVneOtq8ogtACMxbLbItdWSR7FmbMF2D9fPGzpHZiTohND8/aRN5urvegPkb/DbT0pfyrCE7QjYo6xVE32dA5dJJbqFAoW2RIq5cabt262uvbqzIWLhysMYwcvtmu/Bjx4/lZKjVE4iVKoUk6+Dh4FheGTqzHxqewYoftAVwT5NlyN jenkins@whsus-iMac.local
 "@
 
-
-    $ssh_name = "testbed"
-    $ssh_pass = "wme@cisco"
-
-    # remove sshd service
-    cmd /C "cygrunsrv -L | grep sshd && cgyrunsrv -R sshd"
-
-    # set firewall
-    $sshd = "$cyg_home\usr\sbin\sshd.exe"
-    $name = "sshd"
-    netsh advfirewall firewall delete rule name="$name"
-    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=UDP profile=public enable=yes
-    $name = "sshd"
-    netsh advfirewall firewall delete rule name="$name"
-    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=TCP profile=public enable=yes
-
-    # set windows id_rsa
+    ################################################
+    # Set windows id_rsa
     $ssh_path = "$env_home\.ssh"
     cmd /C $cyg_home\bin\mkdir -p $ssh_path
     echo $id_rsa        | out-file -filePath "$ssh_path\id_rsa" -encoding ASCII
     echo $id_rsa_pub    | out-file -filePath "$ssh_path\id_rsa.pub" -encoding ASCII
 
 
-    #===================================
+    ################################################
+    # Set SSHD service
+    $ssh_name = "jenkins"
+    $ssh_pass = "wme@cisco"
+
+    # remove sshd service
+    choco uninstall freeSSHD -y
+    cmd /C "cygrunsrv -L | grep sshd && cgyrunsrv -R sshd"
+    cmd /C "rm -rf /home/testbed"
+
+    # set firewall
+    $name = "sshd"
+    $sshd = "$cyg_home\usr\sbin\sshd.exe"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=UDP profile=public enable=yes
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=TCP profile=public enable=yes
+
     # stop sshd
     $cmdstr = "ps | grep sshd | awk -F `" `" '{print `$1}'"
     $sshpid = cmd /C $cmdstr
@@ -353,12 +354,10 @@ function check_python
 function check_ruby
 {
     # set firewall rule
+    $name = "Ruby"
     $ruby = "$tool_home\ruby215\bin\ruby.exe"
-    $name = "RubyUDP"
     netsh advfirewall firewall delete rule name="$name"
     netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$ruby" protocol=UDP profile=public enable=yes
-    $name = "RubyTCP"
-    netsh advfirewall firewall delete rule name="$name"
     netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$ruby" protocol=TCP profile=public enable=yes
 
 
