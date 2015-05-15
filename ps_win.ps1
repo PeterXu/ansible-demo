@@ -285,12 +285,20 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
 "@
 
 
-    # stop sshd
-    $cmdstr = "ps | grep sshd | awk -F `" `" '{print `$1}'"
-    $sshpid = cmd /C $cmdstr
-    if ($sshpid -and $sshpid -gt 0) {
-        cmd /C kill -9 $sshpid
-    }
+    $ssh_name = "testbed"
+    $ssh_pass = "wme@cisco"
+
+    # remove sshd service
+    cmd /C "cygrunsrv -L | grep sshd && cgyrunsrv -R sshd"
+
+    # set firewall
+    $sshd = "$cyg_home\usr\sbin\sshd.exe"
+    $name = "sshd"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=UDP profile=public enable=yes
+    $name = "sshd"
+    netsh advfirewall firewall delete rule name="$name"
+    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=TCP profile=public enable=yes
 
     # set windows id_rsa
     $ssh_path = "$env_home\.ssh"
@@ -298,12 +306,19 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     echo $id_rsa        | out-file -filePath "$ssh_path\id_rsa" -encoding ASCII
     echo $id_rsa_pub    | out-file -filePath "$ssh_path\id_rsa.pub" -encoding ASCII
 
-    # set sshd
-    $ssh_name = "testbed"
-    $ssh_pass = "wme@cisco"
+
+    #===================================
+    # stop sshd
+    $cmdstr = "ps | grep sshd | awk -F `" `" '{print `$1}'"
+    $sshpid = cmd /C $cmdstr
+    if ($sshpid -and $sshpid -gt 0) {
+        cmd /C kill -9 $sshpid
+    }
+
+    # set sshd host
     cmd /C $cyg_home\bin\bash.exe /usr/bin/ssh-host-config -y -u $ssh_name -w $ssh_pass
     
-    # set cygwin id_rsa
+    # set sshd id_rsa
     $ssh_path2 = "$cyg_home\home\$ssh_name\.ssh"
     cmd /C $cyg_home\bin\mkdir -p $ssh_path2
     echo $id_rsa        | out-file -filePath "$ssh_path2\id_rsa" -encoding ASCII
@@ -311,15 +326,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVyIPguii5oGx84sfXjaAj9O5ClvVXHAOFqCMno3+k
     cmd /C chmod 600 "$ssh_path2/id_rsa"
 
     # start sshd
-    $sshd = "$cyg_home\usr\sbin\sshd.exe"
-    $name = "sshdUDP"
-    netsh advfirewall firewall delete rule name="$name"
-    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=UDP profile=all enable=yes
-
-    $name = "sshdTCP"
-    netsh advfirewall firewall delete rule name="$name"
-    netsh advfirewall firewall add rule name="$name" dir=in action=allow program="$sshd" protocol=TCP profile=all enable=yes
-
     cmd /C "run /usr/sbin/sshd"
 }
 
