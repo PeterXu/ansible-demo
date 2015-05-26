@@ -36,3 +36,5 @@ Try {
 }Catch {
 }
 
+cmd /C "rm -f /usr/bin/git"
+

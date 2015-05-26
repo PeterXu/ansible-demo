@@ -14,6 +14,9 @@
     - name: set read-write
       script: ps_set.ps1
       ignore_errors: True
+    - name: prepare git
+      win_chololatey: name="git -y"
+      ignore_errors: True
     - name: prepare jdk8
       win_chocolatey: name="jdk8 -y"
       ignore_errors: True

@@ -228,7 +228,7 @@ function check_cygwin
 
 function check_tools
 {
-    $pkgs = "nasm,curl,wget,git,openssh,p7zip,cmake"
+    $pkgs = "nasm,curl,wget,openssh,p7zip,cmake"
     cyg-get "$pkgs"
 
     cmd /C where 7z.bat
