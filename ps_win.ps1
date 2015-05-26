@@ -207,6 +207,8 @@ function check_ant
 
 function check_cygwin
 {
+    set_path "C:\Program Files (x86)\Git\cmd"
+
     $cyg_ps = "$choco_home\lib\cyg-get\tools\cyg-get.ps1"
 
     set_path "$cyg_home"
